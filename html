@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fahrtenschreiber</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #0d6efd;
+            padding: 1rem;
+        }
+        .nav-link {
+            color: white !important;
+            margin: 0 1rem;
+        }
+        .nav-link.active {
+            font-weight: bold;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #eee;
+            padding: 1rem;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .btn {
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+        }
+        .table th {
+            border-top: none;
+        }
+        .bild-auswahl {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .bild-auswahl button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <span class="navbar-brand text-white h4 mb-0">Fahrtenschreiber</span>
+            <div>
+                <a class="nav-link" href="#" onclick="zeigeSeite('start')">Start</a>
+                <a class="nav-link" href="#" onclick="zeigeSeite('fahrer')">Fahrer</a>
+                <a class="nav-link" href="#" onclick="zeigeSeite('fahrten')">Fahrten</a>
+                <a class="nav-link" href="#" onclick="zeigeSeite('lkw')">LKW</a>
+                <a class="nav-link" href="#" onclick="zeigeSeite('statistik')">Statistik</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Startseite -->
+        <div id="start" class="seite">
+            <h2 class="mb-4">Willkommen im Fahrtenschreiber</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Aktuelle Fahrt</h5>
+                </div>
+                <div class="card-body" id="aktuelleFahrtInfo">
+                    <p>Keine aktive Fahrt</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Schnellzugriff</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="neueFahrt()">Neue Fahrt</button>
+                        <button class="btn btn-outline-secondary" onclick="zeigeSeite('fahrer')">Fahrer verwalten</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fahrerseite -->
+        <div id="fahrer" class="seite" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>Fahrer</h1>
+                <button class="btn btn-primary" onclick="neuerFahrer()">Neuer Fahrer</button>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Vorname</th>
+                                <th>Status</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fahrerListe"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fahrtenseite -->
+        <div id="fahrten" class="seite" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>Fahrten</h1>
+                <button class="btn btn-primary" onclick="neueFahrt()">Neue Fahrt</button>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Alle Fahrten</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Fahrer</th>
+                                <th>Fahrzeug</th>
+                                <th>Start</th>
+                                <th>Ende</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fahrtenListe"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- LKW-Seite -->
+        <div id="lkw" class="seite" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>LKW Verwaltung</h1>
+                <button class="btn btn-primary" onclick="neuerLKW()">Neuer LKW</button>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Fahrzeugbestand</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Bild</th>
+                                <th>Kennzeichen</th>
+                                <th>Marke</th>
+                                <th>Farbe</th>
+                                <th>Kilometerstand</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lkwListe"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Kilometerhistorie</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Kennzeichen</th>
+                                <th>Kilometerstand</th>
+                                <th>Differenz</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kilometerHistorie"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistikseite -->
+        <div id="statistik" class="seite" style="display: none;">
+            <h1>Statistik</h1>
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5>Gesamtfahrten</h5>
+                            <h2 id="statistikGesamtfahrten">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5>Aktive Fahrer</h5>
+                            <h2 id="statistikAktiveFahrer">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5>Gesamtfahrzeit</h5>
+                            <h2 id="statistikGesamtzeit">0h</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5>Durchschnitt/Fahrt</h5>
+                            <h2 id="statistikDurchschnitt">0h</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal für neuen Fahrer -->
+    <div class="modal fade" id="fahrerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Neuer Fahrer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="fahrerForm">
+                        <div class="mb-3">
+                            <label class="form-label">Fahrer-ID</label>
+                            <input type="text" class="form-control" id="fahrerId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vorname</label>
+                            <input type="text" class="form-control" id="fahrerVorname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" id="fahrerName" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" onclick="fahrerSpeichern()">Speichern</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal für neue Fahrt -->
+    <div class="modal fade" id="fahrtModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Neue Fahrt</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="fahrtForm">
+                        <div class="mb-3">
+                            <label class="form-label">Fahrer</label>
+                            <select class="form-select" id="fahrtFahrer" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fahrzeug</label>
+                            <select class="form-select" id="fahrtFahrzeug" required></select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" onclick="fahrtStarten()">Fahrt starten</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal für neuen LKW -->
+    <div class="modal fade" id="lkwModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Neuer LKW</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="lkwForm">
+                        <div class="mb-3">
+                            <label class="form-label">Kennzeichen</label>
+                            <input type="text" class="form-control" id="lkwKennzeichen" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Marke</label>
+                            <input type="text" class="form-control" id="lkwMarke" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Farbe</label>
+                            <input type="text" class="form-control" id="lkwFarbe" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kilometerstand</label>
+                            <input type="number" class="form-control" id="lkwKilometerstand" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Bild</label>
+                            <div class="bild-auswahl">
+                                <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('lkwBild').click()">
+                                    Aus Datei wählen
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('lkwBildKamera').click()">
+                                    Aus Kamera wählen
+                                </button>
+                            </div>
+                            <input type="file" class="form-control" id="lkwBild" accept="image/*" style="display: none;" required>
+                            <input type="file" class="form-control" id="lkwBildKamera" accept="image/*" capture="environment" style="display: none;" required>
+                            <div id="bildVorschau" class="mt-2"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" onclick="lkwSpeichern()">Speichern</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal für Kilometerstand -->
+    <div class="modal fade" id="kilometerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Kilometerstand aktualisieren</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="kilometerForm">
+                        <div class="mb-3">
+                            <label class="form-label">Neuer Kilometerstand</label>
+                            <input type="number" class="form-control" id="neuerKilometerstand" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" onclick="kilometerstandSpeichern()">Speichern</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Grundlegende Variablen
+        let fahrer = [];
+        let fahrten = [];
+        let lkws = [];
+        let kilometerHistorie = [];
+        let aktuelleFahrt = null;
+        let ausgewaehlterLKW = null;
+
+        // Beim Laden der Seite
+        document.addEventListener('DOMContentLoaded', () => {
+            ladeDaten();
+            aktualisiereAnsicht();
+        });
+
+        // Datenverwaltung
+        function ladeDaten() {
+            const fahrerData = localStorage.getItem('fahrer');
+            const fahrtenData = localStorage.getItem('fahrten');
+            const lkwsData = localStorage.getItem('lkws');
+            const kilometerHistorieData = localStorage.getItem('kilometerHistorie');
+            const aktuelleFahrtData = localStorage.getItem('aktuelleFahrt');
+
+            if (fahrerData) fahrer = JSON.parse(fahrerData);
+            if (fahrtenData) fahrten = JSON.parse(fahrtenData);
+            if (lkwsData) lkws = JSON.parse(lkwsData);
+            if (kilometerHistorieData) kilometerHistorie = JSON.parse(kilometerHistorieData);
+            if (aktuelleFahrtData) aktuelleFahrt = JSON.parse(aktuelleFahrtData);
+        }
+
+        function speichereDaten() {
+            localStorage.setItem('fahrer', JSON.stringify(fahrer));
+            localStorage.setItem('fahrten', JSON.stringify(fahrten));
+            localStorage.setItem('lkws', JSON.stringify(lkws));
+            localStorage.setItem('kilometerHistorie', JSON.stringify(kilometerHistorie));
+            if (aktuelleFahrt) {
+                localStorage.setItem('aktuelleFahrt', JSON.stringify(aktuelleFahrt));
+            } else {
+                localStorage.removeItem('aktuelleFahrt');
+            }
+        }
+
+        // Navigationsfunktionen
+        function zeigeSeite(seite) {
+            document.querySelectorAll('.seite').forEach(s => s.style.display = 'none');
+            document.getElementById(seite).style.display = 'block';
+            
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector(`[onclick="zeigeSeite('${seite}')"]`).classList.add('active');
+        }
+
+        // Aktualisierungsfunktionen
+        function aktualisiereAnsicht() {
+            aktualisiereAktuelleFahrt();
+            aktualisiereFahrerListe();
+            aktualisiereFahrtenListe();
+            aktualisiereLKWListe();
+            aktualisiereKilometerHistorie();
+            aktualisiereStatistik();
+            aktualisiereFahrerSelect();
+            aktualisiereLKWSelect();
+        }
+
+        function aktualisiereAktuelleFahrt() {
+            const info = document.getElementById('aktuelleFahrtInfo');
+            if (aktuelleFahrt) {
+                const fahrerInfo = fahrer.find(f => f.id === aktuelleFahrt.fahrerId);
+                const lkwInfo = lkws.find(l => l.kennzeichen === aktuelleFahrt.fahrzeug);
+                info.innerHTML = `
+                    <p><strong>Fahrer:</strong> ${fahrerInfo ? fahrerInfo.vorname + ' ' + fahrerInfo.name : 'Unbekannt'}</p>
+                    <p><strong>Fahrzeug:</strong> ${lkwInfo ? lkwInfo.kennzeichen + ' - ' + lkwInfo.marke : aktuelleFahrt.fahrzeug}</p>
+                    <p><strong>Start:</strong> ${new Date(aktuelleFahrt.startZeit).toLocaleString()}</p>
+                    <div class="mt-3">
+                        <button class="btn btn-warning me-2" onclick="togglePause()">
+                            ${aktuelleFahrt.pause ? 'Pause beenden' : 'Pause starten'}
+                        </button>
+                        <button class="btn btn-danger" onclick="fahrtBeenden()">Fahrt beenden</button>
+                    </div>
+                `;
+            } else {
+                info.innerHTML = '<p>Keine aktive Fahrt</p>';
+            }
+        }
+
+        function aktualisiereFahrerListe() {
+            const liste = document.getElementById('fahrerListe');
+            if (!liste) return;
+
+            liste.innerHTML = '';
+            fahrer.forEach(f => {
+                liste.innerHTML += `
+                    <tr>
+                        <td>${f.id}</td>
+                        <td>${f.name}</td>
+                        <td>${f.vorname}</td>
+                        <td>
+                            <span class="badge bg-${f.aktiv ? 'success' : 'danger'}">
+                                ${f.aktiv ? 'Aktiv' : 'Inaktiv'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-${f.aktiv ? 'danger' : 'success'}" 
+                                    onclick="toggleFahrerStatus('${f.id}')">
+                                ${f.aktiv ? 'Deaktivieren' : 'Aktivieren'}
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="fahrerLoeschen('${f.id}')">
+                                Löschen
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function aktualisiereFahrtenListe() {
+            const liste = document.getElementById('fahrtenListe');
+            if (!liste) return;
+
+            liste.innerHTML = '';
+            fahrten.forEach(fahrt => {
+                const fahrerInfo = fahrer.find(f => f.id === fahrt.fahrerId);
+                const lkwInfo = lkws.find(l => l.kennzeichen === fahrt.fahrzeug);
+                liste.innerHTML += `
+                    <tr>
+                        <td>${fahrerInfo ? fahrerInfo.vorname + ' ' + fahrerInfo.name : 'Unbekannt'}</td>
+                        <td>${lkwInfo ? lkwInfo.kennzeichen + ' - ' + lkwInfo.marke : fahrt.fahrzeug}</td>
+                        <td>${new Date(fahrt.startZeit).toLocaleString()}</td>
+                        <td>${fahrt.endeZeit ? new Date(fahrt.endeZeit).toLocaleString() : '-'}</td>
+                        <td>
+                            <span class="badge bg-${fahrt.endeZeit ? 'success' : 'warning'}">
+                                ${fahrt.endeZeit ? 'Beendet' : fahrt.pause ? 'Pause' : 'Aktiv'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function aktualisiereLKWListe() {
+            const liste = document.getElementById('lkwListe');
+            if (!liste) return;
+
+            liste.innerHTML = '';
+            lkws.forEach(lkw => {
+                liste.innerHTML += `
+                    <tr>
+                        <td>
+                            ${lkw.bild ? `<img src="${lkw.bild}" alt="LKW" style="height: 50px; width: auto;">` : 'Kein Bild'}
+                        </td>
+                        <td>${lkw.kennzeichen}</td>
+                        <td>${lkw.marke}</td>
+                        <td>${lkw.farbe}</td>
+                        <td>${lkw.kilometerstand} km</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="zeigeKilometerModal('${lkw.kennzeichen}')">
+                                Kilometerstand
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="lkwLoeschen('${lkw.kennzeichen}')">
+                                Löschen
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function aktualisiereKilometerHistorie() {
+            const liste = document.getElementById('kilometerHistorie');
+            if (!liste) return;
+
+            liste.innerHTML = '';
+            kilometerHistorie.sort((a, b) => new Date(b.datum) - new Date(a.datum)).forEach(eintrag => {
+                liste.innerHTML += `
+                    <tr>
+                        <td>${new Date(eintrag.datum).toLocaleString()}</td>
+                        <td>${eintrag.kennzeichen}</td>
+                        <td>${eintrag.kilometerstand} km</td>
+                        <td>${eintrag.differenz > 0 ? '+' : ''}${eintrag.differenz} km</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function aktualisiereStatistik() {
+            document.getElementById('statistikGesamtfahrten').textContent = fahrten.length;
+            document.getElementById('statistikAktiveFahrer').textContent = fahrer.filter(f => f.aktiv).length;
+            
+            let gesamtzeit = 0;
+            fahrten.forEach(fahrt => {
+                if (fahrt.endeZeit) {
+                    gesamtzeit += new Date(fahrt.endeZeit) - new Date(fahrt.startZeit);
+                }
+            });
+            
+            const gesamtstunden = Math.floor(gesamtzeit / (1000 * 60 * 60));
+            document.getElementById('statistikGesamtzeit').textContent = gesamtstunden + 'h';
+            
+            const durchschnitt = fahrten.length ? Math.floor(gesamtzeit / fahrten.length / (1000 * 60 * 60)) : 0;
+            document.getElementById('statistikDurchschnitt').textContent = durchschnitt + 'h';
+        }
+
+        function aktualisiereFahrerSelect() {
+            const select = document.getElementById('fahrtFahrer');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Fahrer auswählen...</option>';
+            fahrer.filter(f => f.aktiv).forEach(f => {
+                select.innerHTML += `
+                    <option value="${f.id}">${f.vorname} ${f.name}</option>
+                `;
+            });
+        }
+
+        function aktualisiereLKWSelect() {
+            const select = document.getElementById('fahrtFahrzeug');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Fahrzeug auswählen...</option>';
+            lkws.forEach(lkw => {
+                select.innerHTML += `
+                    <option value="${lkw.kennzeichen}">${lkw.kennzeichen} - ${lkw.marke}</option>
+                `;
+            });
+        }
+
+        // Fahrer-Funktionen
+        function neuerFahrer() {
+            document.getElementById('fahrerForm').reset();
+            new bootstrap.Modal(document.getElementById('fahrerModal')).show();
+        }
+
+        function fahrerSpeichern() {
+            const id = document.getElementById('fahrerId').value;
+            const vorname = document.getElementById('fahrerVorname').value;
+            const name = document.getElementById('fahrerName').value;
+
+            if (!id || !vorname || !name) {
+                alert('Bitte alle Felder ausfüllen!');
+                return;
+            }
+
+            if (fahrer.some(f => f.id === id)) {
+                alert('Diese Fahrer-ID existiert bereits!');
+                return;
+            }
+
+            fahrer.push({
+                id: id,
+                vorname: vorname,
+                name: name,
+                aktiv: true
+            });
+
+            speichereDaten();
+            aktualisiereAnsicht();
+            bootstrap.Modal.getInstance(document.getElementById('fahrerModal')).hide();
+        }
+
+        function toggleFahrerStatus(id) {
+            const fahrerIndex = fahrer.findIndex(f => f.id === id);
+            if (fahrerIndex !== -1) {
+                fahrer[fahrerIndex].aktiv = !fahrer[fahrerIndex].aktiv;
+                speichereDaten();
+                aktualisiereAnsicht();
+            }
+        }
+
+        function fahrerLoeschen(id) {
+            if (confirm('Fahrer wirklich löschen?')) {
+                fahrer = fahrer.filter(f => f.id !== id);
+                speichereDaten();
+                aktualisiereAnsicht();
+            }
+        }
+
+        // Fahrt-Funktionen
+        function neueFahrt() {
+            if (aktuelleFahrt) {
+                alert('Es läuft bereits eine Fahrt!');
+                return;
+            }
+            document.getElementById('fahrtForm').reset();
+            new bootstrap.Modal(document.getElementById('fahrtModal')).show();
+        }
+
+        function fahrtStarten() {
+            const fahrerId = document.getElementById('fahrtFahrer').value;
+            const fahrzeug = document.getElementById('fahrtFahrzeug').value;
+
+            if (!fahrerId || !fahrzeug) {
+                alert('Bitte alle Felder ausfüllen!');
+                return;
+            }
+
+            const neueFahrt = {
+                id: Date.now().toString(),
+                fahrerId: fahrerId,
+                fahrzeug: fahrzeug,
+                startZeit: new Date().toISOString(),
+                pause: false
+            };
+
+            aktuelleFahrt = neueFahrt;
+            fahrten.push(neueFahrt);
+            
+            speichereDaten();
+            aktualisiereAnsicht();
+            bootstrap.Modal.getInstance(document.getElementById('fahrtModal')).hide();
+        }
+
+        function fahrtBeenden() {
+            if (aktuelleFahrt) {
+                aktuelleFahrt.endeZeit = new Date().toISOString();
+                const fahrtIndex = fahrten.findIndex(f => f.id === aktuelleFahrt.id);
+                if (fahrtIndex !== -1) {
+                    fahrten[fahrtIndex] = aktuelleFahrt;
+                }
+                aktuelleFahrt = null;
+                speichereDaten();
+                aktualisiereAnsicht();
+            }
+        }
+
+        function togglePause() {
+            if (aktuelleFahrt) {
+                aktuelleFahrt.pause = !aktuelleFahrt.pause;
+                const fahrtIndex = fahrten.findIndex(f => f.id === aktuelleFahrt.id);
+                if (fahrtIndex !== -1) {
+                    fahrten[fahrtIndex] = aktuelleFahrt;
+                }
+                speichereDaten();
+                aktualisiereAnsicht();
+            }
+        }
+
+        // LKW-Funktionen
+        function neuerLKW() {
+            document.getElementById('lkwForm').reset();
+            document.getElementById('bildVorschau').innerHTML = '';
+            new bootstrap.Modal(document.getElementById('lkwModal')).show();
+        }
+
+        function lkwSpeichern() {
+            const kennzeichen = document.getElementById('lkwKennzeichen').value;
+            const marke = document.getElementById('lkwMarke').value;
+            const farbe = document.getElementById('lkwFarbe').value;
+            const kilometerstand = parseInt(document.getElementById('lkwKilometerstand').value);
+            const bildInput = document.getElementById('lkwBild');
+            const bildKameraInput = document.getElementById('lkwBildKamera');
+
+            if (!kennzeichen || !marke || !farbe || isNaN(kilometerstand)) {
+                alert('Bitte alle Felder ausfüllen!');
+                return;
+            }
+
+            if (!bildInput.files.length && !bildKameraInput.files.length) {
+                alert('Bitte ein Bild auswählen!');
+                return;
+            }
+
+            if (lkws.some(l => l.kennzeichen === kennzeichen)) {
+                alert('Dieses Kennzeichen existiert bereits!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const neuerLKW = {
+                    kennzeichen: kennzeichen,
+                    marke: marke,
+                    farbe: farbe,
+                    kilometerstand: kilometerstand,
+                    bild: e.target.result
+                };
+
+                lkws.push(neuerLKW);
+                speichereDaten();
+                aktualisiereAnsicht();
+                bootstrap.Modal.getInstance(document.getElementById('lkwModal')).hide();
+            };
+            
+            const bildDatei = bildInput.files.length > 0 ? bildInput.files[0] : bildKameraInput.files[0];
+            reader.readAsDataURL(bildDatei);
+        }
+
+        function zeigeKilometerModal(kennzeichen) {
+            ausgewaehlterLKW = kennzeichen;
+            document.getElementById('kilometerForm').reset();
+            new bootstrap.Modal(document.getElementById('kilometerModal')).show();
+        }
+
+        function kilometerstandSpeichern() {
+            if (!ausgewaehlterLKW) return;
+
+            const neuerStand = parseInt(document.getElementById('neuerKilometerstand').value);
+            if (isNaN(neuerStand)) {
+                alert('Bitte gültigen Kilometerstand eingeben!');
+                return;
+            }
+
+            const lkw = lkws.find(l => l.kennzeichen === ausgewaehlterLKW);
+            if (lkw) {
+                const differenz = neuerStand - lkw.kilometerstand;
+                if (differenz < 0) {
+                    if (!confirm('Der neue Kilometerstand ist niedriger als der aktuelle. Fortfahren?')) {
+                        return;
+                    }
+                }
+
+                kilometerHistorie.push({
+                    datum: new Date().toISOString(),
+                    kennzeichen: ausgewaehlterLKW,
+                    kilometerstand: neuerStand,
+                    differenz: differenz
+                });
+
+                lkw.kilometerstand = neuerStand;
+                speichereDaten();
+                aktualisiereAnsicht();
+                bootstrap.Modal.getInstance(document.getElementById('kilometerModal')).hide();
+            }
+        }
+
+        function lkwLoeschen(kennzeichen) {
+            if (confirm('LKW wirklich löschen?')) {
+                lkws = lkws.filter(l => l.kennzeichen !== kennzeichen);
+                speichereDaten();
+                aktualisiereAnsicht();
+            }
+        }
+
+        // Bildvorschau für beide Eingabefelder
+        function aktualisiereBildVorschau(input) {
+            const vorschau = document.getElementById('bildVorschau');
+            if (input.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    vorschau.innerHTML = `<img src="${e.target.result}" alt="Vorschau" style="max-height: 200px; width: auto;">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                vorschau.innerHTML = '';
+            }
+        }
+
+        document.getElementById('lkwBild').addEventListener('change', function(e) {
+            aktualisiereBildVorschau(this);
+        });
+
+        document.getElementById('lkwBildKamera').addEventListener('change', function(e) {
+            aktualisiereBildVorschau(this);
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fahrtenschreiber</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #0d6efd;
+            padding: 1rem;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .nav-link {
+            color: white !important;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .nav-link.active {
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #eee;
+            padding: 1rem;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .btn {
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+        }
+        .table th {
+            border-top: none;
+        }
+        .bild-auswahl {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .bild-auswahl button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <span class="navbar-brand text-white h4 mb-0">Fahrtenschreiber</span>
+            <div class="nav-links">
+                <a class="nav-link" href="#" onclick="zeigeSeite('start')">Start</a>
+                <a class="nav-link" href="#" onclick="zeigeSeite('fahrer')">Fahrer</a>
+                <a class="nav-link" href="#" onclick="zeigeSeite('fahrten')">Fahrten</a>
+                <a class="nav-link" href="#" onclick="zeigeSeite('lkw')">LKW</a>
+                <a class="nav-link" href="#" onclick="zeigeSeite('statistik')">Statistik</a>
+            </div>
+        </div>
+    </nav>
+// ... existing code ...
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
